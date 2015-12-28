@@ -57,7 +57,9 @@
 (defn contacts-view [data owner]
   (reify
     om/IInitState 
-    (init-state [_] {:delete (chan)})
+    (init-state [_] {:delete (chan)
+                     :text ""} ;; Put the contact text into the view state
+                )
     om/IWillMount
     (will-mount [_]
       (let [delete (om/get-state owner :delete)]
@@ -75,7 +77,7 @@
                       (om/build-all contact-view (:contacts data)
                                     {:init-state state}))
                (dom/div nil
-                        (dom/input #js {:type "text" :ref "new-contact"})
+                        (dom/input #js {:type "text" :ref "new-contact" :value (:text state)})
                         (dom/button #js {:onClick #(add-contact data owner)} "Add contact"))))))
 
 (om/root contacts-view app-state
