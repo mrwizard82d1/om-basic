@@ -54,6 +54,16 @@
               (dom/span nil (display-name contact))
               (dom/button #js {:onClick (fn [e] (put! delete @contact))} "Delete")))))
 
+(defn handle-change [e owner state]
+  "Handle changes to the component."
+  ;; Sets the state of the :text value of app state to the specified value.
+  ;; Remember that `(.. e -target -value)` expands to `(.-value (.-target e))`; that is, it extracts the value property
+  ;; of the target property of the supplied event (e). When this handler sets the :text value of the app-state Om/React
+  ;; re-renders the view replacing the content of the (context) input field with the new value. (This mechanism seems to
+  ;; be the same mechanism described by Martin Fowler in "Patterns of Enterprise Architecture" to correctly coordinate
+  ;; changes between models and views.)
+  (om/set-state! owner :text (.. e -target -value)))
+
 (defn contacts-view [data owner]
   (reify
     om/IInitState 
@@ -77,7 +87,9 @@
                       (om/build-all contact-view (:contacts data)
                                     {:init-state state}))
                (dom/div nil
-                        (dom/input #js {:type "text" :ref "new-contact" :value (:text state)})
+                        (dom/input #js {:type "text" :ref "new-contact" :value (:text state)
+                                        ;; Handle all changes to this component
+                                        :onChange #(handle-change % owner state)})
                         (dom/button #js {:onClick #(add-contact data owner)} "Add contact"))))))
 
 (om/root contacts-view app-state
