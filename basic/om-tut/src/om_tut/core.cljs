@@ -33,11 +33,11 @@
               (>= c 2) (assoc :middle middle)))))
 
 (defn add-contact [data owner]
-  (let [new-contact (-> (om/get-node owner "new-contact")
-                        .-value
-                        parse-contact)]
+  (let [input (om/get-node owner "new-contact")
+        new-contact (-> input .-value parse-contact)]
     (when new-contact
-      (om/transact! data :contacts #(conj % new-contact)))))
+      (om/transact! data :contacts #(conj % new-contact))
+      (set! (.-value input) ""))))
 
 (defn middle-name [{:keys [middle middle-initial]}]
   (cond
