@@ -37,7 +37,9 @@
         new-contact (-> input .-value parse-contact)]
     (when new-contact
       (om/transact! data :contacts #(conj % new-contact))
-      (set! (.-value input) ""))))
+      ;; Clear the (contact) text field **not** by directly setting the value of the HTML component by by setting the
+      ;; state of the application state tagged by :text.
+      (om/set-state! owner :text ""))))
 
 (defn middle-name [{:keys [middle middle-initial]}]
   (cond
