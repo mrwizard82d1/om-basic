@@ -56,7 +56,7 @@
               (dom/span nil (display-name contact))
               (dom/button #js {:onClick (fn [e] (put! delete @contact))} "Delete")))))
 
-(defn handle-change [e owner state]
+(defn handle-change [e owner {:keys [text]}]
   "Handle changes to the component."
   ;; Sets the state of the :text value of app state to the specified value.
   ;; Remember that `(.. e -target -value)` expands to `(.-value (.-target e))`; that is, it extracts the value property
@@ -64,7 +64,13 @@
   ;; re-renders the view replacing the content of the (context) input field with the new value. (This mechanism seems to
   ;; be the same mechanism described by Martin Fowler in "Patterns of Enterprise Architecture" to correctly coordinate
   ;; changes between models and views.)
-  (om/set-state! owner :text (.. e -target -value)))
+  (let [value (om/set-state! owner :text (.. e -target -value))]
+    ;; If the value is not a number
+    (if-not (re-find #"[0-9]" value)
+      ;; Set the value of the :text component to the value in the target UI component
+      (om/set-state! owner :text value)
+      ;; Otherwise, set the value of the :text component to the text **without** any changes
+      (om/set-state! owner :text text))))
 
 (defn contacts-view [data owner]
   (reify
