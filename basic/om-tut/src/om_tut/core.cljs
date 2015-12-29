@@ -9,7 +9,7 @@
   (atom
    {:people
     [{:type :student :first "Ben" :last "Bitdiddle" :email "benb@mit.edu"}
-     {:type :student :first "Alyssa" :middle-initial "P" :last-name "Hacker" :email "aphacker@mit.edu"}
+     {:type :student :first "Alyssa" :middle-initial "P" :last "Hacker" :email "aphacker@mit.edu"}
      {:type :professor :first "Gerald" :middle "Jay" :last "Sussman" :email "metacirc@mit.edu" :classes [:6001 :6496]}
      {:type :student :first "Eva" :middle "Lu" :last "Ator" :email "eval@mit.edu"}
      {:type :student :first "Louis" :last "Reasoner" :email "prolog@mit.edu"}
@@ -72,8 +72,20 @@
                (apply dom/ul nil
                       (om/build-all entry-view (people data)))))))
 
+(defn classes-view [data owner]
+  (reify
+    om/IRender
+    (render [_]
+      (dom/div #js {:id "classes"}
+               (dom/h2 nil "Classes")
+               (apply dom/ul nil
+                      (map #(dom/li nil %) (vals (:classes data))))))))
+
 (om/root registry-view app-state
          {:target (. js/document (getElementById "registry"))})
+
+(om/root classes-view app-state
+         {:target (. js/document (getElementById "classes"))})
 
 (defn on-js-reload []
   ;; optionally touch your app-state to force rendering depending on your application
