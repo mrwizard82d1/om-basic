@@ -26,12 +26,51 @@
 (defn display-name [{:keys [first, last] :as contact}]
   (str last ", " first (middle-name contact)))
 
+(defn student-view [student owner]
+  (println "A student:" student)
+  (reify
+    om/IRender
+    (render [_]
+      (dom/li nil (display-name student)))))
+
+(defn professor-view [professor owner]
+  (println "A professor:" professor)
+  (reify
+    om/IRender
+    (render [_]
+      (dom/li nil
+              (dom/div nil (display-name professor))
+              (dom/label nil "Classes")
+              (apply dom/li nil
+                     (map #(dom/ul nil %) (:classes professor)))))))
+
+(defmulti entry-view (fn [person _] (:type person)))
+
+(defmethod entry-view :student
+  [person owner]
+  (student-view person owner))
+
+(defmethod entry-view :professor
+  [person owner]
+  (professor-view person owner))
+
+(defn people [data]
+  (->> data
+       :people
+       (mapv (fn [x]
+               (if (:classes x)
+                 (update-in x [:classes]
+                            (fn [cs] (mapv (:classes data) cs)))
+                 x)))))
+
 (defn registry-view [data owner]
   (reify
-    om/IRenderState
-    (render-state [_ state]
-      (dom/div nil
-               (dom/h2 nil "Registry")))))
+    om/IRender
+    (render [_]
+      (dom/div #js {:id "registry"}
+               (dom/h2 nil "Registry")
+               (apply dom/ul nil
+                      (om/build-all entry-view (people data)))))))
 
 (om/root registry-view app-state
          {:target (. js/document (getElementById "registry"))})
