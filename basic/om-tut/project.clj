@@ -21,7 +21,8 @@
               [{:id "dev"
                 :source-paths ["src"]
 
-                :figwheel {:on-jsload "om-tut.core/on-js-reload"}
+                :figwheel {:load-warninged-code true ; Added to work around issue in core.cljs.
+                           :on-jsload "om-tut.core/on-js-reload"}
 
                 :compiler {:main om-tut.core
                            :asset-path "js/compiled/out"
